@@ -1,0 +1,8 @@
+# Ignore config files with secrets
+config.properties
+
+# Ignore compiled Java files
+*.class
+
+# Ignore external jars
+json-*.jar

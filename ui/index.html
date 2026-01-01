@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Weather Search</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1d2671, #c33764);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app {
+      background: white;
+      width: 420px;
+      padding: 32px;
+      border-radius: 18px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+      animation: fadeIn 0.6s ease;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+      margin-bottom: 24px;
+    }
+
+    .search {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #6a11cb;
+    }
+
+    button {
+      padding: 12px 18px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .loading {
+      color: #2575fc;
+      font-weight: 500;
+    }
+
+    .error {
+      color: #e74c3c;
+      font-weight: 500;
+    }
+
+    .card {
+      margin-top: 20px;
+      background: linear-gradient(135deg, #fdfbfb, #ebedee);
+      border-radius: 16px;
+      padding: 22px;
+      animation: slideUp 0.4s ease;
+    }
+
+    .city {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .item {
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-size: 14px;
+    }
+
+    .item span {
+      display: block;
+      font-size: 12px;
+      color: #777;
+      margin-top: 4px;
+    }
+
+    .condition {
+      grid-column: span 2;
+      font-weight: 500;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+    <div class="title">🌤 Weather Search</div>
+    <div class="subtitle">Search current weather by city</div>
+
+    <div class="search">
+      <input id="city" placeholder="Enter city name (e.g. Pune)" />
+      <button onclick="search()">Search</button>
+    </div>
+
+    <div id="result" class="status"></div>
+  </div>
+
+  <script>
+    function search() {
+      const city = document.getElementById("city").value.trim();
+      const result = document.getElementById("result");
+
+      if (!city) {
+        result.innerHTML = '<p class="error">Please enter a city name</p>';
+        return;
+      }
+
+      result.innerHTML = '<p class="loading">Fetching weather data...</p>';
+
+      fetch(`http://localhost:9090/api/weather?city=${encodeURIComponent(city)}`)
+        .then(res => {
+          if (!res.ok) {
+            return res.json().then(err => {
+              throw new Error(err.error || "Unable to fetch weather");
+            });
+          }
+          return res.json();
+        })
+        .then(data => {
+          result.innerHTML = `
+            <div class="card">
+              <div class="city">${data.city}</div>
+              <div class="grid">
+                <div class="item">🌡 ${data.temperature} °C<span>Temperature</span></div>
+                <div class="item">🤔 ${data.feelsLike} °C<span>Feels Like</span></div>
+                <div class="item">💧 ${data.humidity}%<span>Humidity</span></div>
+                <div class="item">🌬 ${data.windSpeed} m/s<span>Wind Speed</span></div>
+                <div class="item condition">☁ ${data.condition}</div>
+              </div>
+
+              <p style="font-size:12px;color:#777;">
+                Last updated: ${new Date(data.lastUpdated).toLocaleTimeString()}
+              </p>
+
+            </div>
+          `;
+        })
+        .catch(err => {
+          result.innerHTML = `<p class="error">${err.message}</p>`;
+        });
+    }
+  </script>
+
+</body>
+</html>
