@@ -20,6 +20,16 @@ This project is implemented using Core Java for the backend and HTML, CSS, and J
 
 ---
 
+## 🖼 Application Screenshots
+
+### Home Screen
+![Home Screen](screenshots/home.jpeg)
+
+### Weather Search Result
+![Weather Result](screenshots/result.jpeg)
+
+
+
 ## Tech Stack
 
 ### Backend
